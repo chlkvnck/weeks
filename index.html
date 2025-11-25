@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LIFE</title>
+  <meta name="description" content="Enter your date of birth, to see your life in weeks. Based on the post by Tim Urban, from Wait by Why.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="weeks-favicon.png" sizes="32x32">
+  <link rel="stylesheet" href="your-life.css">
+</head>
+<body class="has-y-axis">
+  <header class="page-header">
+    <h1 class="title">
+      <span class="title-word">Life</span>
+      <span class="title-divider" aria-hidden="true">/</span>
+      <span class="title-view">Weeks</span>
+    </h1>
+    <div class="progress-counter" aria-live="polite" aria-atomic="true">
+      <span class="progress-current">0</span>
+      <span class="progress-separator">/</span>
+      <span class="progress-total">0</span>
+      <span class="progress-percent">(0%)</span>
+    </div>
+    <button class="settings-toggle" type="button" aria-label="Настройки">⚙</button>
+  </header>
+  <div class="settings-overlay hidden">
+    <section class="settings-panel">
+      <form class="settings-form" action="#">
+        <div class="settings-tabs" role="tablist">
+          <button type="button" class="settings-tab active" data-section="data" role="tab">Данные</button>
+          <button type="button" class="settings-tab" data-section="display" role="tab">Отображение</button>
+        </div>
+        <div class="settings-sections">
+          <section class="settings-section active" data-section="display">
+            <fieldset>
+              <label for="cellColor">Цветовая схема</label>
+              <input type="color" id="cellColor" value="#000000" />
+            </fieldset>
+            <fieldset>
+              <legend>Форма ячеек</legend>
+              <div class="shape-options">
+                <label>
+                  <input type="radio" name="cellShape" value="circle" checked>
+                  Круги
+                </label>
+                <label>
+                  <input type="radio" name="cellShape" value="square">
+                  Квадраты
+                </label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Режимы</legend>
+              <div class="regime-options">
+              <label class="drawing-toggle">
+                <input type="checkbox" id="drawingMode" />
+                Рисование
+              </label>
+            </div>
+            </fieldset>
+          </section>
+          <section class="settings-section" data-section="data">
+            <fieldset>
+              <label for="dateInput">Дата</label>
+              <input type="date" id="dateInput" required />
+            </fieldset>
+            <fieldset>
+              <label for="maxAge">Максимальный возраст (лет)</label>
+              <input type="number" id="maxAge" min="10" max="120" value="80" />
+            </fieldset>
+          </section>
+        </div>
+      </form>
+    </section>
+  </div>
+  <div class="period-legend" aria-live="polite" aria-label="Легенда периодов"></div>
+  <div class="period-editor-overlay hidden" role="dialog" aria-modal="true">
+    <div class="period-editor">
+      <form class="period-editor-form">
+        <h2 class="period-editor-title">Новый период</h2>
+        <label for="periodEditorName">Название</label>
+        <input type="text" id="periodEditorName" />
+        <label for="periodEditorColor">Цвет</label>
+        <input type="color" id="periodEditorColor" />
+        <div class="period-editor-spans"></div>
+        <button type="button" class="period-editor-add-span">Добавить интервал</button>
+        <div class="period-editor-actions">
+          <button type="button" class="period-editor-delete hidden">Удалить период</button>
+          <div class="period-editor-action-buttons">
+            <button type="button" class="period-editor-cancel">Отмена</button>
+            <button type="submit" class="period-editor-save">Сохранить</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="period-tooltip hidden" role="status" aria-live="polite"></div>
+  <ol class="chart group">
+    <div class="x-axis">
+      <div class="markers x-axis-markers"></div>
+    </div>
+    <div class="y-axis">
+      <div class="markers y-axis-markers"></div>
+    </div>
+  </ol>
+  <footer class="life-remaining hidden" aria-live="polite" aria-atomic="true">
+    <ul class="life-remaining-list">
+      <li>
+        <span class="life-remaining-label">Осталось лет:</span>
+        <span class="life-remaining-value" data-remaining-unit="years">—</span>
+      </li>
+      <li>
+        <span class="life-remaining-label">Осталось месяцев:</span>
+        <span class="life-remaining-value" data-remaining-unit="months">—</span>
+      </li>
+      <li>
+        <span class="life-remaining-label">Осталось недель:</span>
+        <span class="life-remaining-value" data-remaining-unit="weeks">—</span>
+      </li>
+      <li>
+        <span class="life-remaining-label">Осталось дней:</span>
+        <span class="life-remaining-value" data-remaining-unit="days">—</span>
+      </li>
+      <li>
+        <span class="life-remaining-label">Осталось часов:</span>
+        <span class="life-remaining-value" data-remaining-unit="hours">—</span>
+      </li>
+      <li>
+        <span class="life-remaining-label">Осталось минут:</span>
+        <span class="life-remaining-value" data-remaining-unit="minutes">—</span>
+      </li>
+    </ul>
+  </footer>
+  <script src="your-life.js"></script>
+</body>
+</html>
