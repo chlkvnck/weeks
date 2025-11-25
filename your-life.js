@@ -331,7 +331,10 @@
 
   function _handleInitialOverlayState() {
     _updateDateInputHighlight();
-    if (!hasStoredSettings && settingsOverlay) {
+    if (!settingsOverlay) {
+      return;
+    }
+    if (!hasStoredSettings || !settings.dob) {
       settingsOverlay.classList.remove('hidden');
     }
   }
@@ -368,7 +371,7 @@
     } catch (err) {
       stored = null;
     }
-    hasStoredSettings = Boolean(stored);
+    hasStoredSettings = Boolean(stored && stored.dob);
     if (stored) {
       if (stored.dob) {
         var parsed = new Date(stored.dob);

@@ -109,6 +109,18 @@ body.has-y-axis {
   cursor: pointer;
 }
 
+@media (max-width: 640px) {
+  .title-word {
+    font-size: 0.8em;
+  }
+  .title-divider {
+    font-size: 0.8em;
+  }
+  .title-view {
+    font-size: 0.7em;
+  }
+}
+
 .page-header .title,
 .settings-toggle {
   flex: 0 0 auto;
