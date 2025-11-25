@@ -295,8 +295,27 @@ body.has-y-axis {
   font-size: 1rem;
 }
 .period-editor-form input[type="color"] {
-  height: 2.4rem;
-  padding: 0.2rem;
+  min-width: 1rem;
+  height: 3rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.period-editor-form input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: inherit;
+}
+.period-editor-form input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: inherit;
+}
+.period-editor-form input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: inherit;
 }
 .period-editor-spans {
   display: flex;
