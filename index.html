@@ -26,12 +26,19 @@
   <div class="settings-overlay hidden">
     <section class="settings-panel">
       <form class="settings-form" action="#">
-        <div class="settings-tabs" role="tablist">
-          <button type="button" class="settings-tab active" data-section="data" role="tab">Данные</button>
-          <button type="button" class="settings-tab" data-section="display" role="tab">Отображение</button>
-        </div>
-        <div class="settings-sections">
-          <section class="settings-section active" data-section="display">
+          <section class="settings-section" data-section="data">
+            <h3 class="settings-section-title">Данные</h3>
+            <fieldset>
+              <label for="dateInput">Дата</label>
+              <input type="date" id="dateInput" value="2000-01-01" required />
+            </fieldset>
+            <fieldset>
+              <label for="maxAge">Желанный возраст</label>
+              <input type="number" id="maxAge" min="10" max="120" value="80" />
+            </fieldset>
+          </section>
+          <section class="settings-section" data-section="display">
+            <h3 class="settings-section-title">Отображение</h3>
             <fieldset>
               <label for="cellColor">Цветовая схема</label>
               <input type="color" id="cellColor" value="#000000" />
@@ -56,17 +63,11 @@
                 <input type="checkbox" id="drawingMode" />
                 Рисование
               </label>
+              <label class="periods-toggle">
+                <input type="checkbox" id="periodsToggle" />
+                Периоды
+              </label>
             </div>
-            </fieldset>
-          </section>
-          <section class="settings-section" data-section="data">
-            <fieldset>
-              <label for="dateInput">Дата</label>
-              <input type="date" id="dateInput" required />
-            </fieldset>
-            <fieldset>
-              <label for="maxAge">Максимальный возраст (лет)</label>
-              <input type="number" id="maxAge" min="10" max="120" value="80" />
             </fieldset>
           </section>
         </div>

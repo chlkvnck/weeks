@@ -13,8 +13,6 @@
   var dateInput = document.getElementById('dateInput');
   var viewTabs = document.querySelectorAll('.view-tab');
   var shapeInputs = document.querySelectorAll('input[name="cellShape"]');
-  var settingsTabs = document.querySelectorAll('.settings-tab');
-  var settingsSections = document.querySelectorAll('.settings-section');
   var drawingModeInput = document.getElementById('drawingMode');
   var periodLegendEl = document.querySelector('.period-legend');
   var periodTooltipEl = document.querySelector('.period-tooltip');
@@ -35,6 +33,7 @@
   var progressPercentEl = document.querySelector('.progress-percent');
   var xMarkersEl = chartEl.querySelector('.x-axis .markers');
   var yMarkersEl = chartEl.querySelector('.y-axis .markers');
+  var periodsToggleInput = document.getElementById('periodsToggle');
   var lifeStatsEl = document.querySelector('.life-remaining');
   var remainingLifeValueEls = {
     years: document.querySelector('[data-remaining-unit="years"]'),
@@ -60,6 +59,7 @@
   var DAY_MS = 24 * 60 * 60 * 1000;
   var WHITE_RGB = { r: 255, g: 255, b: 255 };
   var BLACK_RGB = { r: 0, g: 0, b: 0 };
+  var DEFAULT_DOB = '2000-01-01';
   var MONTHS_IN_YEAR = 12;
   var DAYS_IN_YEAR = 365.25;
   var HOURS_IN_DAY = 24;
@@ -130,6 +130,7 @@
     view: 'weeks',
     cellShape: 'circle',
     drawingMode: false,
+    showPeriods: false,
     periods: []
   };
 
@@ -144,6 +145,7 @@
   var suppressLegendToggle = false;
   var editorState = null;
   var deleteHoldTimer = null;
+  var hasStoredSettings = false;
 
   function _normalizeColorValue(value) {
     if (!value) {
@@ -191,17 +193,19 @@
       }
     });
   });
-  settingsTabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      _setSettingsSection(tab.dataset.section);
-    });
-  });
   if (drawingModeInput) {
     drawingModeInput.addEventListener('change', function () {
       settings.drawingMode = drawingModeInput.checked;
       _applyDrawingMode();
       _persistSettings();
       settingsOverlay.classList.add('hidden');
+    });
+  }
+  if (periodsToggleInput) {
+    periodsToggleInput.addEventListener('change', function () {
+      settings.showPeriods = periodsToggleInput.checked;
+      _applyPeriodsEnabledState();
+      _persistSettings();
     });
   }
   if (titleViewEl) {
@@ -285,6 +289,8 @@
     periodEditorDeleteBtn.addEventListener('pointercancel', _cancelDeleteHold);
   }
 
+  _handleInitialOverlayState();
+
   function _applySettings() {
     var dateValue = dateInput.value;
     if (dateValue) {
@@ -307,6 +313,9 @@
     if (drawingModeInput) {
       settings.drawingMode = drawingModeInput.checked;
     }
+    if (periodsToggleInput) {
+      settings.showPeriods = periodsToggleInput.checked;
+    }
     COLOR = settings.color;
     _applyThemeColors();
 
@@ -317,6 +326,23 @@
     _repaintItems(itemCount);
     _handleResize();
     _updateProgressDisplay();
+    _updateDateInputHighlight();
+  }
+
+  function _handleInitialOverlayState() {
+    _updateDateInputHighlight();
+    if (!hasStoredSettings && settingsOverlay) {
+      settingsOverlay.classList.remove('hidden');
+    }
+  }
+
+  function _updateDateInputHighlight() {
+    if (!dateInput) {
+      return;
+    }
+    var value = dateInput.value || '';
+    var highlight = !settings.dob || value === DEFAULT_DOB;
+    dateInput.classList.toggle('needs-attention', highlight);
   }
 
   function _switchView(view, options) {
@@ -342,6 +368,7 @@
     } catch (err) {
       stored = null;
     }
+    hasStoredSettings = Boolean(stored);
     if (stored) {
       if (stored.dob) {
         var parsed = new Date(stored.dob);
@@ -364,13 +391,16 @@
         settings.cellShape = stored.cellShape;
       }
       if (typeof stored.drawingMode === 'boolean') {
-        settings.drawingMode = stored.drawingMode;
-      }
-      if (Array.isArray(stored.periods)) {
-        settings.periods = stored.periods.map(_normalizeStoredPeriod);
-      }
+      settings.drawingMode = stored.drawingMode;
     }
-    periodActiveState = Object.create(null);
+    if (typeof stored.showPeriods === 'boolean') {
+      settings.showPeriods = stored.showPeriods;
+    }
+    if (Array.isArray(stored.periods)) {
+      settings.periods = stored.periods.map(_normalizeStoredPeriod);
+    }
+  }
+  periodActiveState = Object.create(null);
 
     if (settings.dob) {
       dateInput.value = settings.dob.toISOString().slice(0, 10);
@@ -383,15 +413,20 @@
     _setActiveTab(settings.view);
     _updateViewLabel();
     settings.drawingMode = false;
-    if (drawingModeInput) {
-      drawingModeInput.checked = settings.drawingMode;
-    }
-    shapeInputs.forEach(function (input) {
-      input.checked = input.value === settings.cellShape;
-    });
+  if (drawingModeInput) {
+    drawingModeInput.checked = settings.drawingMode;
+  }
+  if (periodsToggleInput) {
+    periodsToggleInput.checked = settings.showPeriods;
+  }
+  shapeInputs.forEach(function (input) {
+    input.checked = input.value === settings.cellShape;
+  });
     _applyDrawingMode();
+    _applyPeriodsEnabledState();
     _updateProgressDisplay();
     _syncPeriodActiveState();
+    _updateDateInputHighlight();
     _renderPeriodLegend();
   }
 
@@ -713,6 +748,7 @@
     _applyShapeSetting();
     _applyLayout(config);
     _applyDrawingMode();
+    _applyPeriodsEnabledState();
     _applyPeriodHighlights();
   }
 
@@ -989,6 +1025,7 @@
         view: settings.view,
         cellShape: settings.cellShape,
         drawingMode: settings.drawingMode,
+        showPeriods: settings.showPeriods,
         periods: settings.periods
       })
     );
@@ -1005,14 +1042,6 @@
     _updateLegendShape();
   }
 
-  function _setSettingsSection(sectionName) {
-    settingsTabs.forEach(function (tab) {
-      tab.classList.toggle('active', tab.dataset.section === sectionName);
-    });
-    settingsSections.forEach(function (section) {
-      section.classList.toggle('active', section.dataset.section === sectionName);
-    });
-  }
 
   function _updateViewLabel() {
     if (!titleViewEl) {
@@ -1028,6 +1057,18 @@
       drawingModeInput.checked = enabled;
     }
     _clearDrawingTouches();
+  }
+
+  function _applyPeriodsEnabledState() {
+    if (!settings.showPeriods) {
+      _clearAllPeriodHighlights();
+      if (periodLegendEl) {
+        periodLegendEl.classList.add('hidden');
+      }
+      _hidePeriodTooltip();
+      return;
+    }
+    _refreshPeriodsVisuals();
   }
 
   function _toggleDrawCell(cell) {
@@ -1354,6 +1395,13 @@
   }
 
   function _refreshPeriodsVisuals() {
+    if (!settings.showPeriods) {
+      _clearAllPeriodHighlights();
+      if (periodLegendEl) {
+        periodLegendEl.classList.add('hidden');
+      }
+      return;
+    }
     if (items && items.length) {
       _repaintItems(itemCount);
     } else {
@@ -1362,6 +1410,10 @@
   }
 
   function _applyPeriodHighlights() {
+    if (!settings.showPeriods) {
+      _clearAllPeriodHighlights();
+      return;
+    }
     var spans = _getRenderableSpans();
     spanMetaById = {};
     spans.forEach(function (span) {
@@ -1422,6 +1474,20 @@
       _hidePeriodTooltip();
     }
     _renderPeriodLegend();
+  }
+
+  function _clearAllPeriodHighlights() {
+    if (!items || !items.length) {
+      return;
+    }
+    for (var i = 0; i < items.length; i++) {
+      var cell = items[i];
+      cell.classList.remove('period-highlight');
+      if (cell.dataset && cell.dataset.spanIds) {
+        delete cell.dataset.spanIds;
+      }
+      _clearCellLayers(cell);
+    }
   }
 
   function _getRenderableSpans() {
@@ -1806,6 +1872,12 @@
   }
 
   function _renderPeriodLegend() {
+    if (!settings.showPeriods) {
+      if (periodLegendEl) {
+        periodLegendEl.classList.add('hidden');
+      }
+      return;
+    }
     if (!periodLegendEl) {
       return;
     }
@@ -1921,7 +1993,7 @@
   }
 
   function _handlePeriodCellPointerOver(evt) {
-    if (settings.drawingMode) {
+    if (settings.drawingMode || !settings.showPeriods) {
       return;
     }
     if (evt.pointerType === 'touch') {
@@ -1937,7 +2009,7 @@
   }
 
   function _handlePeriodCellPointerOut(evt) {
-    if (settings.drawingMode) {
+    if (settings.drawingMode || !settings.showPeriods) {
       return;
     }
     if (evt.pointerType === 'touch') {
@@ -1947,7 +2019,7 @@
   }
 
   function _handlePeriodCellPointerDown(evt) {
-    if (settings.drawingMode) {
+    if (settings.drawingMode || !settings.showPeriods) {
       return;
     }
     var cell = _getPeriodCellFromEvent(evt);
