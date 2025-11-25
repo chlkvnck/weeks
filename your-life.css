@@ -167,7 +167,7 @@ body.has-y-axis {
   font-size: 1.2rem;
   color: var(--color-muted);
   font-weight: 600;
-  justify-self: center;
+  text-align: center;
 }
 .settings-panel fieldset {
   border: none;

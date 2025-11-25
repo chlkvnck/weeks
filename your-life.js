@@ -401,8 +401,17 @@
     if (Array.isArray(stored.periods)) {
       settings.periods = stored.periods.map(_normalizeStoredPeriod);
     }
-  }
-  periodActiveState = Object.create(null);
+    }
+    if (!settings.dob) {
+      var defaultDate = new Date(DEFAULT_DOB);
+      if (!isNaN(defaultDate.getTime())) {
+        settings.dob = defaultDate;
+        if (dateInput && !dateInput.value) {
+          dateInput.value = DEFAULT_DOB;
+        }
+      }
+    }
+    periodActiveState = Object.create(null);
 
     if (settings.dob) {
       dateInput.value = settings.dob.toISOString().slice(0, 10);
