@@ -216,7 +216,6 @@
   dateInput.addEventListener('change', _applySettings);
   maxAgeInput.addEventListener('change', _applySettings);
   cellColorInput.addEventListener('input', _applySettings);
-  _setSettingsSection('data');
   chartEl.addEventListener('pointerdown', _handleDrawingPointerDown);
   chartEl.addEventListener('pointermove', _handleDrawingPointerMove);
   chartEl.addEventListener('pointerleave', _handleDrawingPointerUp);
